@@ -1,3 +1,4 @@
+
 document.addEventListener('DOMContentLoaded', function() {
     const input = document.getElementById('Country');
     const btn = document.getElementById('btn');
@@ -19,11 +20,11 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(response => response.json())  
         .then(data => {
             console.log(data);  
-            // if (data) {
-            //     name.innerHTML = data.name ? `${data.name}` : 'No Name Available'; 
-            //     code.innerHTML = data.iso2 ? `${data.iso2}` : 'No ISO Code Available';    
-            //     countryId.innerHTML = data.country_id ? `${data.id}` : 'No Country ID Available';  
-            // }
+            if (data) {
+                name.innerHTML = data.name ? `${data.name}` : 'No Name Available'; 
+                code.innerHTML = data.iso2 ? `${data.iso2}` : 'No ISO Code Available';    
+                countryId.innerHTML = data.country_id ? `${data.id}` : 'No Country ID Available';  
+            }
            const list=document.getElementById('list')
            data.forEach(element => {
             const listItem=document.createElement('li')
