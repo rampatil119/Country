@@ -3,28 +3,118 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title
-    <link rel="stylesheet" href="./style.css">
+    <title>Dynamic Country, State, City Dropdown</title>
 </head>
 <body>
-    <div class="header">
-        <div class="content">
-            <div class="tittle"> 
-                <h1>Enter your Country Name of</h1>
-            </div>
-            <label for="Country">Country</label><br>
-            <input type="text" name="Country" id="Country" placeholder="Enter a Country Name"  />
-            <button type="submit" id="btn">Enter</button>
-        </div>
 
-         <div>
-            <p id="name">Country Name:</p>
-            <p id="iso">Iso</p> 
-            <p id="countryId">Country ID:</p><!-- Fixed the closing tag here -->
-         </div>
-         <p id="list"></p>
-        
-    </div>
-    <script type="module" src="script.js"></script>
+    <h2>Select Country:</h2>
+    <select id="countrySelect">
+        <option value="">Select a country</option>
+    </select>
+
+    <h2>Select State:</h2>
+    <select id="stateSelect">
+        <option value="">Select a state</option>
+    </select>
+
+    <h2>Select City:</h2>
+    <select id="citySelect">
+        <option value="">Select a city</option>
+    </select>
+
+    <script>
+        const apiKey = "Mjg2V1VtMGFSbHU1MFJlR2NtR1pzMGFSOVhQUk51cVo4ZDFBbVgzTg==";  // Replace with your actual API key
+
+        // Function to fetch and populate countries
+        function fetchCountries() {
+            fetch("https://api.countrystatecity.in/v1/countries", {
+                method: "GET",
+                headers: { "X-CSCAPI-KEY": apiKey }
+            })
+            .then(response => {
+                if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+                return response.json();
+            })
+            .then(data => {
+                if (!Array.isArray(data)) throw new Error("Invalid country data format");
+                let countrySelect = document.getElementById("countrySelect");
+                countrySelect.innerHTML = '<option value="">Select a country</option>';
+                data.forEach(country => {
+                    let option = document.createElement("option");
+                    option.value = country.iso2;
+                    option.textContent = country.name;
+                    countrySelect.appendChild(option);
+                });
+            })
+            .catch(error => console.error("Error fetching countries:", error));
+        }
+
+        // Function to fetch and populate states based on selected country
+        function fetchStates(countryCode) {
+            if (!countryCode) return;
+            fetch(`https://api.countrystatecity.in/v1/countries/${countryCode}/states`, {
+                method: "GET",
+                headers: { "X-CSCAPI-KEY": apiKey }
+            })
+            .then(response => {
+                if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+                return response.json();
+            })
+            .then(data => {
+                if (!Array.isArray(data)) throw new Error("Invalid state data format");
+                let stateSelect = document.getElementById("stateSelect");
+                stateSelect.innerHTML = '<option value="">Select a state</option>';
+                data.forEach(state => {
+                    let option = document.createElement("option");
+                    option.value = state.iso2;
+                    option.textContent = state.name;
+                    stateSelect.appendChild(option);
+                });
+            })
+            .catch(error => console.error("Error fetching states:", error));
+        }
+
+        // Function to fetch and populate cities based on selected state
+        function fetchCities(countryCode, stateCode) {
+            if (!stateCode) return;
+            fetch(`https://api.countrystatecity.in/v1/countries/${countryCode}/states/${stateCode}/cities`, {
+                method: "GET",
+                headers: { "X-CSCAPI-KEY": apiKey }
+            })
+            .then(response => {
+                if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+                return response.json();
+            })
+            .then(data => {
+                if (!Array.isArray(data)) throw new Error("Invalid city data format");
+                let citySelect = document.getElementById("citySelect");
+                citySelect.innerHTML = '<option value="">Select a city</option>';
+                data.forEach(city => {
+                    let option = document.createElement("option");
+                    option.value = city.name;
+                    option.textContent = city.name;
+                    citySelect.appendChild(option);
+                });
+            })
+            .catch(error => console.error("Error fetching cities:", error));
+        }
+
+        // Event Listeners
+        document.getElementById("countrySelect").addEventListener("change", function() {
+            let countryCode = this.value;
+            fetchStates(countryCode);
+            document.getElementById("citySelect").innerHTML = '<option value="">Select a city</option>'; // Reset city list
+        });
+
+        document.getElementById("stateSelect").addEventListener("change", function() {
+            let countryCode = document.getElementById("countrySelect").value;
+            let stateCode = this.value;
+            fetchCities(countryCode, stateCode);
+        });
+
+        // Load countries on page load
+        fetchCountries();
+    </script>
+
 </body>
 </html>
